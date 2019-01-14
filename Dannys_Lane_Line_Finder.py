@@ -1,4 +1,5 @@
-# DWB, December 16, 2018 - Udacity Self Driving Car Engineer Term1, Project 2 - Advanced Lane Line Finder
+# DWB,Udacity Self Driving Car Engineer Term1, Project 2 - Advanced Lane Line Finder
+# Started work Dec-16,2018 took some breaks, finished on Jan-11-2019
 # Steps/Requirements for project are as follows:
 
 # Step1:  Compute the camera calibration matrix and distortion coefficients given a set of chessboard images.
@@ -25,10 +26,11 @@ import pylab
 import glob
 
 #import LaneFinderFunctions 
-import CameraCalibration
-import ShowSideBySide
-import ImageEdgeTransforms
-import CurveFitFinder
+import CameraCalibration           # 
+import ShowSideBySide              #Plot two Images side-by-side -- troubleshooting only
+import ImageEdgeTransforms         #Apply sobel (gradient) transforms and also color transforms
+import CurveFitFinder              #Fit lines to points and also generate polygon representing lane
+import Config                      #Variables Used Across Modules
 
 
 ###################################################################################################################
@@ -37,19 +39,9 @@ import CurveFitFinder
 # these built in functions area all contained within a custom function/def I wrote called "CalibrateMe" in the CameraCalibration.py module.
 # The primary openCV built in functions that are used are:  cv2.findChessboardCorners and cv2.calibrateCamera
 
-# NOTE - you only have to run the CameraCalibration.calibrate_me() function one time then you can copy the values in as I did below
-#  this would be repeated if you change cameras and need to redo the calibration
 
-# cam_mtx, dist_coeffs, notused1, undistorted_img = CameraCalibration.calibrate_me()
-# print(cam_mtx)
-# print(dist_coeffs)
-
-# These values were copied in from running the CameraCalibration.calibrate_me() function on the set of test images
-cam_mtx =  np.array([[  1.15396093e+03,   0.00000000e+00,   6.69705359e+02],
- [  0.00000000e+00,   1.14802495e+03,   3.85656232e+02],
- [  0.00000000e+00,   0.00000000e+00,   1.00000000e+00]])
-
-dist_coeffs = np.array([ -2.41017968e-01,  -5.30720497e-02,  -1.15810318e-03,  -1.28318543e-04,  2.67124302e-02])
+###################################################################################################################
+# Step1:  Camera Calibration performed offline, outside of this main pipeline and values copied into the Config.py file
 
 
 
@@ -73,7 +65,7 @@ for sing_test_img_path in paths_of_test_imgs:
 
 	#This uses the built in cv2 function and the previously calculated camera matrix and distortion coefficients
 	#and since it's inside the for loop it performs it on each image in the test_images directory
-	undistorted_image = cv2.undistort(img, cam_mtx, dist_coeffs, None, cam_mtx)
+	undistorted_image = cv2.undistort(img, Config.cam_mtx, Config.dist_coeffs, None, Config.cam_mtx)
 
 	save_name="test_images/"+"undistorted"+str(image_count)+".jpg"
 
@@ -179,8 +171,6 @@ for sing_lane_pixels_img_path in paths_of_lane_pixels_imgs:
 
 	fname = sing_lane_pixels_img_path
 	img_in = cv2.imread(fname)
-
-	img_size = (img_in.shape[1], img_in.shape[0])
     
 
 	#original_image_points = np.float32([[671,440],[1025,665],[280,665],[606,440]])
@@ -201,7 +191,7 @@ for sing_lane_pixels_img_path in paths_of_lane_pixels_imgs:
 
     #Using built in function to perform transform given transform matrix calculated above
 	#top_down = cv2.warpPerspective(gray_in, M, img_size, flags=cv2.INTER_LINEAR)
-	top_down = cv2.warpPerspective(img_in, top_down_transform, img_size)
+	top_down = cv2.warpPerspective(img_in, top_down_transform, Config.img_size)
 
 	save_name="test_images/"+"top_down"+str(image_count)+".jpg"
 	#save_name="test_images/"+"color_top_down"+str(image_count)+".jpg"
@@ -213,7 +203,7 @@ print("Number of images transformed to top-down view", image_count)
 
 
 ###################################################################################################################
-# FIXME ... also added Step6 here so need to update my descriptions or change the code to flow differently
+# Steps5-7 are in this next for loop
 # Step5: Use Basic Sliding Window approach to detect the lane pixels in the image and fit it to an 
 #  equation description of the lane lines
 #  Note I like the Basic Sliding Window because it is very apparent what algorithm/approach is being used
@@ -262,7 +252,7 @@ for sing_top_down_img_path in paths_of_top_down_imgs:
 
 	img_with_fit, ploty, left_fit_pix, right_fit_pix, left_fit_real, right_fit_real, fill_pts = CurveFitFinder.poly_fit_me(leftx, lefty, rightx, righty, img_with_windows)
 
-
+	################################################################################################################################
 	#Step 6a (calculate curvature) happens within this loop - FIXME - correct labeling and/or flow to have it flow better with step5
 
 	# Calculate the radius of curvature in pixels for both lane lines
@@ -282,19 +272,13 @@ for sing_top_down_img_path in paths_of_top_down_imgs:
 
 
 
-
+	################################################################################################################################
 	#Step 6b - calculate how centered the vehicle is in the lane.
 	
 	#Calculate centering based on how close the center of the lane lines is to the center of the image
 	lane_center_pixels = (img_in_gray.shape[1]/2) -(rightx_start - leftx_start)
-	
 
-	#FIXME - these are defined locally in several spots - need to make this global
-	# Define conversions in x and y from pixels space to meters
-	ym_per_pix = 30/720 # meters per pixel in y dimension
-	xm_per_pix = 3.7/700 # meters per pixel in x dimension
-
-	lane_center_meters = lane_center_pixels*xm_per_pix
+	lane_center_meters = lane_center_pixels*Config.xm_per_pix
 
 	
 	image_text_line1="Lane Curvature " + str(round(curve_print,1)) + " meters"
@@ -310,7 +294,7 @@ for sing_top_down_img_path in paths_of_top_down_imgs:
 
 	cv2.imwrite(save_name, img_with_fit_and_text2)
 
-
+	################################################################################################################################
 	# Step7: Warp the detected lane boundaries back onto the original image
 	# from "tips and tricks for project"
 
@@ -326,7 +310,7 @@ for sing_top_down_img_path in paths_of_top_down_imgs:
 
 	# Warp the blank back to original image space using inverse perspective matrix (Minv)
 	# Fixme - Don't need to use shape.  I think image size is already defined, several examples for this type of thing that could be cleaned up
-	unwarp_lane_visualization = cv2.warpPerspective(lane_visualize_canvas, inverse_transform, (img_in.shape[1], img_in.shape[0])) 
+	unwarp_lane_visualization = cv2.warpPerspective(lane_visualize_canvas, inverse_transform, Config.img_size) 
 	
 
 	# Combine the result with the original image

@@ -3,6 +3,8 @@ import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
 import cv2
 
+import Config
+
 # Load our image
 #top_down = mpimg.imread('warped_example.jpg')
 
@@ -102,10 +104,6 @@ def slide_me(top_down, leftx_start, rightx_start):
 
 def poly_fit_me(leftx, lefty, rightx, righty, img_in):
     
-    # Define conversions in x and y from pixels space to meters
-    ym_per_pix = 30/720 # meters per pixel in y dimension
-    xm_per_pix = 3.7/700 # meters per pixel in x dimension
-
     # Find our lane pixels first
     #leftx, lefty, rightx, righty, out_img = find_lane_pixels(top_down)
 
@@ -114,8 +112,8 @@ def poly_fit_me(leftx, lefty, rightx, righty, img_in):
     right_fit = np.polyfit(righty, rightx, 2)
     
     #This fits a polynomial in real units (meters) for calculating curvature -this on is not plotted visually
-    left_fit_real = np.polyfit(lefty*ym_per_pix, leftx*xm_per_pix, 2)
-    right_fit_real = np.polyfit(righty*ym_per_pix, rightx*xm_per_pix, 2)
+    left_fit_real = np.polyfit(lefty*Config.ym_per_pix, leftx*Config.xm_per_pix, 2)
+    right_fit_real = np.polyfit(righty*Config.ym_per_pix, rightx*Config.xm_per_pix, 2)
     
 
     # Generate x and y values for plotting
@@ -193,20 +191,15 @@ def measure_curvature_pixels(ploty, left_fit, right_fit):
     return left_radi_pix, right_radai_pix
 
 
-def measure_curvature_real(ploty, left_fit, right_fit):
-    
-    # Define conversions in x and y from pixels space to meters
-    ym_per_pix = 30/720 # meters per pixel in y dimension
-    xm_per_pix = 3.7/700 # meters per pixel in x dimension
-    
+def measure_curvature_real(ploty, left_fit, right_fit): 
     
     # Define y-value where we want radius of curvature
     # We'll choose the maximum y-value, corresponding to the bottom of the image
     y_eval = np.max(ploty)
     
     # Calculation of R_curve (radius of curvature) - using formula from Udacity lecture
-    left_radi_rl = ((1 + (2*left_fit[0]*y_eval*ym_per_pix + left_fit[1])**2)**1.5) / np.absolute(2*left_fit[0])
-    right_radi_rl = ((1 + (2*right_fit[0]*y_eval*ym_per_pix + right_fit[1])**2)**1.5) / np.absolute(2*right_fit[0])
+    left_radi_rl = ((1 + (2*left_fit[0]*y_eval*Config.ym_per_pix + left_fit[1])**2)**1.5) / np.absolute(2*left_fit[0])
+    right_radi_rl = ((1 + (2*right_fit[0]*y_eval*Config.ym_per_pix + right_fit[1])**2)**1.5) / np.absolute(2*right_fit[0])
     
     return left_radi_rl, right_radi_rl
 
