@@ -2,17 +2,7 @@
 [![Udacity - Self-Driving Car NanoDegree](https://s3.amazonaws.com/udacity-sdc/github/shield-carnd.svg)](http://www.udacity.com/drive)
 
 
-In this project, your goal is to write a software pipeline to identify the lane boundaries in a video, but the main output or product we want you to create is a detailed writeup of the project.  Check out the [writeup template](https://github.com/udacity/CarND-Advanced-Lane-Lines/blob/master/writeup_template.md) for this project and use it as a starting point for creating your own writeup.  
-
-Creating a great writeup:
----
-A great writeup should include the rubric points as well as your description of how you addressed each point.  You should include a detailed description of the code used in each step (with line-number references and code snippets where necessary), and links to other supporting documents or external references.  You should include images in your writeup to demonstrate how your code works with examples.  
-
-All that said, please be concise!  We're not looking for you to write a book here, just a brief description of how you passed each rubric point, and references to the relevant code :). 
-
-You're not required to use markdown for your writeup.  If you use another method please just submit a pdf of your writeup.
-
-The Project
+In this project, your goal is to write a software pipeline to identify the lane boundaries in a video, but the main output or product we want you to create is a detailed writeup of the project.  
 ---
 
 The goals / steps of this project are the following:
@@ -26,14 +16,82 @@ The goals / steps of this project are the following:
 * Warp the detected lane boundaries back onto the original image.
 * Output visual display of the lane boundaries and numerical estimation of lane curvature and vehicle position.
 
-The images for camera calibration are stored in the folder called `camera_cal`.  The images in `test_images` are for testing your pipeline on single frames.  If you want to extract more test images from the videos, you can simply use an image writing method like `cv2.imwrite()`, i.e., you can read the video in frame by frame as usual, and for frames you want to save for later you can write to an image file.  
 
-To help the reviewer examine your work, please save examples of the output from each stage of your pipeline in the folder called `output_images`, and include a description in your writeup for the project of what each image shows.    The video called `project_video.mp4` is the video your pipeline should work well on.  
+## Background / Scope of project
+The course has videos and exercises that walk through examples of various computer vision functions that are needed to draw lines that represent the left and right lane markings.  Most of the code (but not all) for the project is already provided but you have to "tune" some of the parameters to make it produce the right results.
 
-The `challenge_video.mp4` video is an extra (and optional) challenge for you if you want to test your pipeline under somewhat trickier conditions.  The `harder_challenge.mp4` video is another optional challenge and is brutal!
 
-If you're feeling ambitious (again, totally optional though), don't stop there!  We encourage you to go out and take video of your own, calibrate your camera and show us how you would implement this project from scratch!
 
-## How to write a README
-A well written README file can enhance your project and portfolio.  Develop your abilities to create professional README files by completing [this free course](https://www.udacity.com/course/writing-readmes--ud777).
+[//]: # (Image References)
+
+[imageA]: ./images_in_writeup/DWB-writeup1.jpg "Grayscale"
+[imageB]: ./images_in_writeup/Canny-fig.jpg "Grayscale"
+[imageC]: ./images_in_writeup/ROIandRawLines.jpg
+[imageD]: ./images_in_writeup/ImproveDrawLines.jpg
+
+
+---
+
+### Reflection
+
+### 1. The project pipeline involves the following steps
+
+_Step 0: Activate Environment and Notebook via Anaconda prompt_
+Basic commands entered are as follows:
+```
+cd ~\Documents\Udacity\Term1>cd DWB-T1-P1
+conda env list
+activate carnd-term1
+Jupyter Notebook
+```
+
+_Step 1: a step_
+
+
+```
+CODE
+```
+
+_Step 2: Image Operations to hide everything except edges_
+
+
+![Image of Gaussian Blur][imageA]
+
+```
+Code
+```
+
+![Image of Canny Function Ouput][imageB]
+
+_Step 3: Another step TODO_
+
+```
+TODO - insert some code here if desired.
+```
+
+The image below shows TODO:
+
+![Image ROI and Raw Lines][imageC]
+
+_Step 4: XYZ_
+
+```
+TODO - insert some code here if desired.
+```
+
+### 2. Identify potential shortcomings with your current pipeline
+
+The filters (Sobel,hsl-color) that are applied to extract the lane lines are fairly effective but looks like lots of additional work could be done here to get the optimal combination.
+
+Tracking not implemented which causes the lane-overlay to "bounce" around some.  This could be implmemented and would be a big improvement.
+
+
+### 3. Suggest possible improvements to your pipeline
+
+Currently using the sliding window approach for _each_ image so the processing time is pretty long, go-take-a-walk long.  The course points out a cool way to use convolution to check for pixels directly to right and left of the fitted line and this would likely improve processing time and also make it more accurate.
+
+
+__Future improvements could be made as follows__
+1. See any "FIXME" present in the code - particularly in the main pipeline file "Dannys_Lane_Line_Finder_For_Videos" related to "tracking" and also related to the lane pixel extraction (see 'combo_4').
+2. I did not test my pipeline on the 'challenge_video.mp4' or the 'harder_challenge.mp4' -- would be fun to do this -- use the "clip" feature that is currently commented out in the code.  It would also be cool to go take my own video and try it out on that.
 
