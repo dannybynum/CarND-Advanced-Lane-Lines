@@ -1,83 +1,146 @@
+[//]: # (Image References)
+[image_BT_1]: ./output_images/roadliketrap.jpg "Grayscale"
+[image2]: ./camera_cal/undistort_output.png "Grayscale"
+[image3]: ./output_images/isolate_lane_pixels4.jpg "Grayscale"
+[image4]: ./output_images/top_down4.jpg "Grayscale"
+[image5]: ./output_images/polyfitoutput4.jpg
+[image6]: ./output_images/polyfitoutputwithtext4.jpg
+[image7-8]: ./output_images/original_image_with_annotation4.jpg
+
+
+
+
+<!-- This is the syntax for commenting/hiding text for readme/markdown -->
+<!--[imageB]: ./images_in_writeup/Canny-fig.jpg "Grayscale" -->
+
+
 ## Danny's Term1 Project - Advanced Lane Finding
 [![Udacity - Self-Driving Car NanoDegree](https://s3.amazonaws.com/udacity-sdc/github/shield-carnd.svg)](http://www.udacity.com/drive)
 
 
-In this project, your goal is to write a software pipeline to identify the lane boundaries in a video, but the main output or product we want you to create is a detailed writeup of the project.  
----
-
-The goals / steps of this project are the following:
-
-* Compute the camera calibration matrix and distortion coefficients given a set of chessboard images.
-* Apply a distortion correction to raw images.
-* Use color transforms, gradients, etc., to create a thresholded binary image.
-* Apply a perspective transform to rectify binary image ("birds-eye view").
-* Detect lane pixels and fit to find the lane boundary.
-* Determine the curvature of the lane and vehicle position with respect to center.
-* Warp the detected lane boundaries back onto the original image.
-* Output visual display of the lane boundaries and numerical estimation of lane curvature and vehicle position.
-
-
 ## Background / Scope of project
-The course has videos and exercises that walk through examples of various computer vision functions that are needed to draw lines that represent the left and right lane markings.  Most of the code (but not all) for the project is already provided but you have to "tune" some of the parameters to make it produce the right results.
+---
 
+This was a very cool project that built directly on top of what was completed for the basic "lane finding" program created for the first project.  In this project more "real world" concerns had to be taken into account (e.g. camera lens distortion) as well as attempting to determine the curvature of the lane in addition to visually identifying the lane.
 
-
-[//]: # (Image References)
-
-[imageA]: ./images_in_writeup/DWB-writeup1.jpg "Grayscale"
-[imageB]: ./images_in_writeup/Canny-fig.jpg "Grayscale"
-[imageC]: ./images_in_writeup/ROIandRawLines.jpg
-[imageD]: ./images_in_writeup/ImproveDrawLines.jpg
-
+Interesting comment in instructions for project - shows how much emphasis is placed on ability to document your code:  
+"In this project, your goal is to write a software pipeline to identify the lane boundaries in a video, but the main output or product we want you to create is a detailed writeup of the project. "
 
 ---
 
-### Reflection
+### Structure of the code
+The main pipeline is captured in the file *[Dannys_Lane_Line_Finder_For_Videos.py]*(https://github.com/dannybynum/DWB-T1-P2/blob/master/Dannys_Lane_Line_Finder_For_Videos.py)
+
+The following files and associated functions are called from this main pipeline.
+**TODO - need to add list and descriptions**
+
+### Building and Troubleshooting steps that helped me complete project
+I built the entire project with processing the 6 sample images in several successive for loops -- in each case I was actually saving the files from the previous step and then reading them back in for the next step.  The code for this looks something like this:
+
+```
+import glob
+import os
+
+os.chdir('C:/Users/bynum/documents/udacity/term1/dwb-t1-p2')
+
+paths_of_test_imgs = glob.glob('test_images/test*.jpg')
+
+image_count = 0
+
+for sing_test_img_path in paths_of_test_imgs:
+	image_count += 1 # Increment counter in for loop and use for save name
+	fname = sing_test_img_path   
+	img = cv2.imread(fname)
+
+	undistorted_image = cv2.undistort(img, Config.cam_mtx, Config.dist_coeffs, None, Config.cam_mtx)
+	save_name="test_images/"+"undistorted"+str(image_count)+".jpg"
+	cv2.imwrite(save_name, undistorted_image)
+
+print("Number of raw images that have been undistorted", image_count)
+```
+
+I struggled some with the image transformation step because no matter what I did the output (after transforming to "top down view/perspective") did not look like what I would have expected.  I noticed a BIG change (which now makes sense) depending on how far out (in real world range) I tried to go to grab the lane lines.  More could be said about this, but for the sake of brevity lets just say it was a huge help to just use powerpoint to create an image with a trapazoid that looked somewhat like the road and then playing with that to see what kind of output I got.  I also created and used the * *FindPerspectiveTransformOffline.py*  script as a tool to help me plot/show the results of the transform as well as plotting the points that I was using as *source* and *destination* points.
+
+
+![Image I created to help easily see top-down transform results][image_BT_1]
 
 ### 1. The project pipeline involves the following steps
 
-_Step 0: Activate Environment and Notebook via Anaconda prompt_
-Basic commands entered are as follows:
-```
-cd ~\Documents\Udacity\Term1>cd DWB-T1-P1
-conda env list
-activate carnd-term1
-Jupyter Notebook
-```
+_Step 1: Compute the camera calibration matrix and distortion coefficients given a set of chessboard images_
 
-_Step 1: a step_
-
-
+Code snipets from *CalibrateCamera.py* file:
 ```
-CODE
+    # Now that we have sets of image points from all calibation images and corresponding sets of ojbect points (same in each set - same chessboard),
+    # we can use the built in cv2 function "calibrateCamera" to calculate the camera matrix and distortion matrix we need to un-distort images
+    cal_found_flag, cam_mtx, dist_coeffs, cam_rvecs, cam_tvecs = cv2.calibrateCamera(set_of_objpts, set_of_imgpts, img_shape, None, None)
+
+    # Now finally we can "undistort an image", in this case test_img is calibration1.jpg
+    # and then we can plot the result.
+    undistorted_image = cv2.undistort(test_image, cam_mtx, dist_coeffs, None, cam_mtx)
 ```
 
-_Step 2: Image Operations to hide everything except edges_
 
+_Step 2: Apply a distortion correction to raw images_
 
-![Image of Gaussian Blur][imageA]
 
 ```
-Code
+INSERT SOME CODE HERE
 ```
 
-![Image of Canny Function Ouput][imageB]
+![Distortion Correction][image2]
 
-_Step 3: Another step TODO_
+_Step 3: Use color transforms, gradients, etc., to create a thresholded binary image_
 
-```
-TODO - insert some code here if desired.
-```
-
-The image below shows TODO:
-
-![Image ROI and Raw Lines][imageC]
-
-_Step 4: XYZ_
 
 ```
-TODO - insert some code here if desired.
+INSERT SOME CODE HERE
 ```
+
+
+![Transforms to isolate lane pixels even with shadows on road][image3]
+
+
+_Step 4: Apply a perspective transform to rectify binary image ("birds-eye view")_
+
+
+```
+INSERT SOME CODE HERE
+```
+
+![Perspective transform to show top-down view of image][image4]
+
+
+_Steps 5: Detect lane pixels and fit to find the lane boundary_
+
+```
+INSERT SOME CODE HERE
+```
+
+![line fit using sliding windows][image5]
+
+_Step 6: Determine the curvature of the lane and vehicle position with respect to center_
+
+
+```
+INSERT SOME CODE HERE
+```
+
+![Overlay with lane curvature in pixels and meters][image6]
+
+
+_Step 7: Warp the detected lane boundaries back onto the original image_
+_Step 8: Output visual display of the lane boundaries and numerical estimation of lane curvature and vehicle position_
+
+
+```
+INSERT SOME CODE HERE
+```
+
+
+
+![Warping the lane line fits back to original image space][image7-8]
+
+
 
 ### 2. Identify potential shortcomings with your current pipeline
 
