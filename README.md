@@ -1,6 +1,6 @@
 [//]: # (Image References)
 [image_BT_1]: ./output_images/roadliketrap.jpg  "Grayscale"
-[image_cal_set]: ./camera_cal/Set_of_Checkerboard_Images.png  "Grayscale"
+[image_cal_set]: ./camera_cal/Set_of_Checkerboard_Images.PNG  "Grayscale"
 
 [image2]: ./camera_cal/undistort_output.png "Grayscale"
 [image3]: ./output_images/isolate_lane_pixels4.jpg "Grayscale"
