@@ -38,8 +38,8 @@ import glob
 from moviepy.editor import VideoFileClip
 from IPython.display import HTML
 
-#import LaneFinderFunctions 
-import CameraCalibration           # 
+
+#import CameraCalibration           # 
 import ShowSideBySide              #Plot two Images side-by-side -- troubleshooting only
 import ImageEdgeTransforms         #Apply sobel (gradient) transforms and also color transforms
 import CurveFitFinder              #Fit lines to points and also generate polygon representing lane
@@ -225,7 +225,9 @@ def proj2_process_image (Current_Image):
 	
 	orig_with_fill_text2 = cv2.putText(orig_with_fill_text1, image_text_line2, (230, 75), font, 0.8, (255, 255, 0), 2, cv2.LINE_AA)
 
-	return orig_with_fill_text2
+	Output_Image = orig_with_fill_text2
+
+	return Output_Image
 
 
 
@@ -249,10 +251,10 @@ output_video_filename = 'output_images/DannyProj2Video.mp4'
 # ## To do so add .subclip(start_second,end_second) to the end of the line below
 # ## Where start_second and end_second are integer values representing the start and end of the subclip
 # ## You may also uncomment the following line for a subclip of the first 5 seconds
-# ##clip1 = VideoFileClip("test_videos/solidWhiteRight.mp4").subclip(0,5)
-clip1 = VideoFileClip("project_video.mp4")
-white_clip = clip1.fl_image(proj2_process_image) #NOTE: this function expects color images!!
-white_clip.write_videofile(output_video_filename, audio=False, progress_bar = True)
+# ##Input_Clip = VideoFileClip("test_videos/solidWhiteRight.mp4").subclip(0,5)
+Input_Clip = VideoFileClip("project_video.mp4")
+Processed_Clip = Input_Clip.fl_image(proj2_process_image) 
+Processed_Clip.write_videofile(output_video_filename, audio=False, progress_bar = True)
 
 
 
