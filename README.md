@@ -38,7 +38,7 @@ The main pipeline is captured in the file [*Dannys_Lane_Line_Finder_For_Videos.p
 There is a file called [*Dannys_Lane_Line_Finder.py*](https://github.com/dannybynum/DWB-T1-P2/blob/master/Dannys_Lane_Line_Finder_For_Images.py) which I spent most of my time in to work out the pipeline on a set of 6 single frame test images that were provided.  It was useful to work on a set of possibly-problematic images in order to tune things so that they were at least at a good starting point for the video.  Since they were stills it was easy to switch between them and plot things side by side and stare at them or make lots of iterative tweaks.  I will keep this type of approach in mind for future efforts.
 
 Within *Dannys_Lane_Line_Finder_For_Videos.py* there is a function called *proj2_process_image* which is written to recieve one image and output one image and uses similar video processing libraries as was used in the first project - here is a code snipet...
-```
+```python
 def proj2_process_image (Current_Image):
 	#Main pipeline steps all go here
 	return Output_Image
@@ -70,7 +70,7 @@ Two steps occur prior to getting started with the main pipeline function.
 ### Building and Troubleshooting steps that helped me complete project
 I built the entire project with processing the 6 sample images in several successive for loops -- in each case I was actually saving the files from the previous step and then reading them back in for the next step.  The code for this looks something like this:
 
-```
+```python
 import glob
 import os
 
@@ -107,7 +107,7 @@ Before correcting the distortion it has to be measured/determined.  In this case
 ![Camera Calibration / Measuring Distortion][image_cal_set]
 
 Code snipets from my *CameraCalibration.py* file:
-```
+```python
 # Read in each cal image in succession and if the inside corners arae found
 # then append the list of image points to the overall set of image points
 paths_of_cal_imgs = glob.glob('camera_cal/calibration*.jpg')
@@ -136,7 +136,7 @@ cal_found_flag, cam_mtx, dist_coeffs, cam_rvecs, cam_tvecs = cv2.calibrateCamera
 _Step 2: Apply a distortion correction to raw images_
 
 There is a handy built in opencv function to remove the distortion from an image (in this case the distortion is where it "curves" some at the four corners) once you've "measured/determined" the distortion of the images (step1 above).  
-```
+```python
 undistorted_image = cv2.undistort(test_image, cam_mtx, dist_coeffs, None, cam_mtx)
 ```
 
@@ -145,7 +145,7 @@ undistorted_image = cv2.undistort(test_image, cam_mtx, dist_coeffs, None, cam_mt
 _Step 3: Use color transforms, gradients, etc., to create a thresholded binary image_
 
 
-```
+```python
 INSERT SOME CODE HERE
 ```
 
@@ -156,7 +156,7 @@ INSERT SOME CODE HERE
 _Step 4: Apply a perspective transform to rectify binary image ("birds-eye view")_
 
 
-```
+```python
 INSERT SOME CODE HERE
 ```
 
@@ -165,7 +165,7 @@ INSERT SOME CODE HERE
 
 _Steps 5: Detect lane pixels and fit to find the lane boundary_
 
-```
+```python
 INSERT SOME CODE HERE
 ```
 
@@ -174,7 +174,7 @@ INSERT SOME CODE HERE
 _Step 6: Determine the curvature of the lane and vehicle position with respect to center_
 
 
-```
+```python
 INSERT SOME CODE HERE
 ```
 
@@ -185,7 +185,7 @@ _Step 7: Warp the detected lane boundaries back onto the original image_
 _Step 8: Output visual display of the lane boundaries and numerical estimation of lane curvature and vehicle position_
 
 
-```
+```python
 INSERT SOME CODE HERE
 ```
 
