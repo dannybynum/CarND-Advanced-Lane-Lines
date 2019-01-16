@@ -1,5 +1,7 @@
 [//]: # (Image References)
 [image_BT_1]: ./output_images/roadliketrap.jpg  "Grayscale"
+[image_cal_set]: ./camera_cal/Set_of_Checkerboard_Images.png  "Grayscale"
+
 [image2]: ./camera_cal/undistort_output.png "Grayscale"
 [image3]: ./output_images/isolate_lane_pixels4.jpg "Grayscale"
 [image4]: ./output_images/top_down4.jpg "Grayscale"
@@ -17,6 +19,8 @@
 ## Danny's Term1 Project - Advanced Lane Finding
 [![Udacity - Self-Driving Car NanoDegree](https://s3.amazonaws.com/udacity-sdc/github/shield-carnd.svg)](http://www.udacity.com/drive)
 
+Attempt to resize an image of full pipeline result:
+<img src="https://github.com/dannybynum/DWB-T1-P2/blob/master/output_images/original_image_with_annotation4.jpg" width="48">
 
 ## Background / Scope of project
 ---
@@ -98,24 +102,42 @@ I struggled some with the image transformation step because no matter what I did
 
 _Step 1: Compute the camera calibration matrix and distortion coefficients given a set of chessboard images_
 
-Code snipets from *CalibrateCamera.py* file:
+Before correcting the distortion it has to be measured/determined.  In this case the method of measuring the distortion is to take images of an actual large checkerboard where the squares are precicely the same size.  Below is a screenshot of the thumbnails for the images used for this project:
+
+![Camera Calibration / Measuring Distortion][image_cal_set]
+
+Code snipets from my *CameraCalibration.py* file:
 ```
-    # Now that we have sets of image points from all calibation images and corresponding sets of object points 
-    # we can use the built in cv2 function "calibrateCamera" to calculate the camera matrix and distortion matrix 
-    
-    cal_found_flag, cam_mtx, dist_coeffs, cam_rvecs, cam_tvecs = cv2.calibrateCamera(set_of_objpts, set_of_imgpts, 
-    																						img_shape, None, None)
-    # Now finally we can "undistort an image", in this case test_img is calibration1.jpg
-    # and then we can plot the result.
-    undistorted_image = cv2.undistort(test_image, cam_mtx, dist_coeffs, None, cam_mtx)
+# Read in each cal image in succession and if the inside corners arae found
+# then append the list of image points to the overall set of image points
+paths_of_cal_imgs = glob.glob('camera_cal/calibration*.jpg')
+for sing_cal_img_path in paths_of_cal_imgs:
+	#......
+
+	# Convert to grayscale -- when using cv2.imread it comes in as BGR
+	img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+	# Find the chessboard corners of each image
+	corner_found_flag, corners = cv2.findChessboardCorners(img_gray, (nx, ny), None)
+	#......
+	#Append this list of image points for a single image to the overall set for this camer
+  
+    set_of_imgpts.append(corners)
+
+    # Even though objpts is the same for each image we create a set here to match the size of the
+    # set of detected image points to make the next step of creating the transformation  easier
+    set_of_objpts.append(objpts)
+
+#Then compute the distortion coefficients and camera matrix needed by using the set of points (across all checkerboard images)
+cal_found_flag, cam_mtx, dist_coeffs, cam_rvecs, cam_tvecs = cv2.calibrateCamera(set_of_objpts, set_of_imgpts, img_shape, None, None)  
 ```
 
 
 _Step 2: Apply a distortion correction to raw images_
 
-
+There is a handy built in opencv function to remove the distortion from an image (in this case the distortion is where it "curves" some at the four corners) once you've "measured/determined" the distortion of the images (step1 above).  
 ```
-INSERT SOME CODE HERE
+undistorted_image = cv2.undistort(test_image, cam_mtx, dist_coeffs, None, cam_mtx)
 ```
 
 ![Distortion Correction][image2]
