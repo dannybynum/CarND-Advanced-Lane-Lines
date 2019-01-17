@@ -135,7 +135,7 @@ There is a handy built in opencv function to remove the distortion from an image
 undistorted_image = cv2.undistort(test_image, cam_mtx, dist_coeffs, None, cam_mtx)
 ```
 
-<img src="https://github.com/dannybynum/DWB-T1-P2/blob/master/output_images/undistort_output.png" width="600">
+<img src="https://github.com/dannybynum/DWB-T1-P2/blob/master/camera_cal/undistort_output.png" width="600">
 
 _Step 3: Use color transforms, gradients, etc., to create a thresholded binary image_
 
