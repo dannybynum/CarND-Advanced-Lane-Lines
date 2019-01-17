@@ -90,7 +90,7 @@ print("Number of raw images that have been undistorted", image_count)
 I struggled some with the image transformation step because no matter what I did the output (after transforming to "top down view/perspective") did not look like what I would have expected.  I noticed a BIG change (which now makes sense) depending on how far out (in real world range) I tried to go to grab the lane lines.  More could be said about this, but for the sake of brevity lets just say it was a huge help to just use powerpoint to create an image with a trapazoid that looked somewhat like the road and then playing with that to see what kind of output I got.  I also created and used the *FindPerspectiveTransformOffline.py*  script as a tool to help me plot/show the results of the transform as well as plotting the points that I was using as *source* and *destination* points.
 
 
-<img src="https://github.com/dannybynum/DWB-T1-P2/blob/master/output_images/roadliketrap.jpg" width="200">
+<img src="https://github.com/dannybynum/DWB-T1-P2/blob/master/output_images/roadliketrap.jpg" width="600">
 
 
 ### 1. The project pipeline involves the following steps
@@ -135,7 +135,7 @@ There is a handy built in opencv function to remove the distortion from an image
 undistorted_image = cv2.undistort(test_image, cam_mtx, dist_coeffs, None, cam_mtx)
 ```
 
-<img src="https://github.com/dannybynum/DWB-T1-P2/blob/master/output_images/undistort_output.png" width="200">
+<img src="https://github.com/dannybynum/DWB-T1-P2/blob/master/output_images/undistort_output.png" width="600">
 
 _Step 3: Use color transforms, gradients, etc., to create a thresholded binary image_
 
@@ -167,7 +167,7 @@ combo_4[((gradx_binary == 1) | (grady_binary ==1) | gray_binary_thresh ==1)] = 2
 
 
 <!-- ![Transforms to isolate lane pixels even with shadows on road][image3] -->
-<img src="https://github.com/dannybynum/DWB-T1-P2/blob/master/output_images/isolate_lane_pixels4.jpg" width="200">
+<img src="https://github.com/dannybynum/DWB-T1-P2/blob/master/output_images/isolate_lane_pixels4.jpg" width="600">
 
 
 _Step 4: Apply a perspective transform to rectify binary image ("birds-eye view")_
@@ -208,7 +208,7 @@ plt.close('all')
 ```
 
 <!-- ![Perspective transform to show top-down view of image][image4] -->
-<img src="https://github.com/dannybynum/DWB-T1-P2/blob/master/output_images/top_down4.jpg" width="200">
+<img src="https://github.com/dannybynum/DWB-T1-P2/blob/master/output_images/top_down4.jpg" width="600">
 
 
 _Step 5: Detect lane pixels and fit to find the lane boundary_
@@ -238,7 +238,7 @@ def slide_me(top_down, leftx_start, rightx_start):
 ```
 
 <!-- ![line fit using sliding windows][image5] -->
-<img src="https://github.com/dannybynum/DWB-T1-P2/blob/master/output_images/polyfitoutput4.jpg" width="200">
+<img src="https://github.com/dannybynum/DWB-T1-P2/blob/master/output_images/polyfitoutput4.jpg" width="600">
 
 
 _Step 6: Determine the curvature of the lane and vehicle position with respect to center_
@@ -264,7 +264,7 @@ def poly_fit_me(leftx, lefty, rightx, righty, img_in):
 ```
 
 <!-- ![Overlay with lane curvature in pixels and meters][image6] -->
-<img src="https://github.com/dannybynum/DWB-T1-P2/blob/master/output_images/polyfitoutputwithtext4.jpg" width="200">
+<img src="https://github.com/dannybynum/DWB-T1-P2/blob/master/output_images/polyfitoutputwithtext4.jpg" width="600">
 
 
 _Step 7: Warp the detected lane boundaries back onto the original image_
@@ -286,7 +286,7 @@ Output_Image = orig_with_fill_text2
 
 
 <!-- ![Warping the lane line fits back to original image space][image7-8] -->
-<img src="https://github.com/dannybynum/DWB-T1-P2/blob/master/output_images/original_image_with_annotation4.jpg" width="200">
+<img src="https://github.com/dannybynum/DWB-T1-P2/blob/master/output_images/original_image_with_annotation4.jpg" width="600">
 
 
 

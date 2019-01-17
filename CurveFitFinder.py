@@ -107,7 +107,7 @@ def poly_fit_me(leftx, lefty, rightx, righty, img_in):
     # Find our lane pixels first
     #leftx, lefty, rightx, righty, out_img = find_lane_pixels(top_down)
 
-    ### TO-DO: Fit a second order polynomial to each using `np.polyfit` ###
+    #Using np.polyfit to tit a second order polynomial to the selected pixels
     left_fit = np.polyfit(lefty, leftx, 2)
     right_fit = np.polyfit(righty, rightx, 2)
     
