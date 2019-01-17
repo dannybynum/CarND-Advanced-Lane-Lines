@@ -2,25 +2,20 @@
 [image_BT_1]: ./output_images/roadliketrap.jpg  "Grayscale"
 [image_cal_set]: ./camera_cal/Set_of_Checkerboard_Images.PNG  "Grayscale"
 
-[image2]: ./camera_cal/undistort_output.png "Grayscale"
-[image3]: ./output_images/isolate_lane_pixels4.jpg "Grayscale"
+<!-- This is the syntax for commenting/hiding text for readme/markdown -->
+<!--[image2]: ./camera_cal/undistort_output.png "Grayscale"-->
+<!-- [image3]: ./output_images/isolate_lane_pixels4.jpg "Grayscale"
 [image4]: ./output_images/top_down4.jpg "Grayscale"
 [image5]: ./output_images/polyfitoutput4.jpg
 [image6]: ./output_images/polyfitoutputwithtext4.jpg
-[image7-8]: ./output_images/original_image_with_annotation4.jpg
+[image7-8]: ./output_images/original_image_with_annotation4.jpg -->
 
 
-
-
-<!-- This is the syntax for commenting/hiding text for readme/markdown -->
-<!--[imageB]: ./images_in_writeup/Canny-fig.jpg "Grayscale" -->
 
 
 ## Danny's Term1 Project - Advanced Lane Finding
 [![Udacity - Self-Driving Car NanoDegree](https://s3.amazonaws.com/udacity-sdc/github/shield-carnd.svg)](http://www.udacity.com/drive)
 
-Attempt to resize an image of full pipeline result:
-<img src="https://github.com/dannybynum/DWB-T1-P2/blob/master/output_images/original_image_with_annotation4.jpg" width="48">
 
 ## Background / Scope of project
 ---
@@ -95,8 +90,8 @@ print("Number of raw images that have been undistorted", image_count)
 I struggled some with the image transformation step because no matter what I did the output (after transforming to "top down view/perspective") did not look like what I would have expected.  I noticed a BIG change (which now makes sense) depending on how far out (in real world range) I tried to go to grab the lane lines.  More could be said about this, but for the sake of brevity lets just say it was a huge help to just use powerpoint to create an image with a trapazoid that looked somewhat like the road and then playing with that to see what kind of output I got.  I also created and used the *FindPerspectiveTransformOffline.py*  script as a tool to help me plot/show the results of the transform as well as plotting the points that I was using as *source* and *destination* points.
 
 
-![Image I created to help easily see top-down transform results][image_BT_1]
-<!-- This =100x is setting WIDTH of image....can also set WIDTHxHEIGHT -->
+<img src="https://github.com/dannybynum/DWB-T1-P2/blob/master/output_images/roadliketrap.jpg" width="200">
+
 
 ### 1. The project pipeline involves the following steps
 
@@ -140,7 +135,7 @@ There is a handy built in opencv function to remove the distortion from an image
 undistorted_image = cv2.undistort(test_image, cam_mtx, dist_coeffs, None, cam_mtx)
 ```
 
-![Distortion Correction][image2]
+<img src="https://github.com/dannybynum/DWB-T1-P2/blob/master/output_images/undistort_output.png" width="200">
 
 _Step 3: Use color transforms, gradients, etc., to create a thresholded binary image_
 
@@ -171,7 +166,8 @@ combo_4[((gradx_binary == 1) | (grady_binary ==1) | gray_binary_thresh ==1)] = 2
 ```
 
 
-![Transforms to isolate lane pixels even with shadows on road][image3]
+<!-- ![Transforms to isolate lane pixels even with shadows on road][image3] -->
+<img src="https://github.com/dannybynum/DWB-T1-P2/blob/master/output_images/isolate_lane_pixels4.jpg" width="200">
 
 
 _Step 4: Apply a perspective transform to rectify binary image ("birds-eye view")_
@@ -211,7 +207,8 @@ plt.waitforbuttonpress(timeout=-1)
 plt.close('all')
 ```
 
-![Perspective transform to show top-down view of image][image4]
+<!-- ![Perspective transform to show top-down view of image][image4] -->
+<img src="https://github.com/dannybynum/DWB-T1-P2/blob/master/output_images/top_down4.jpg" width="200">
 
 
 _Step 5: Detect lane pixels and fit to find the lane boundary_
@@ -240,7 +237,9 @@ def slide_me(top_down, leftx_start, rightx_start):
     
 ```
 
-![line fit using sliding windows][image5]
+<!-- ![line fit using sliding windows][image5] -->
+<img src="https://github.com/dannybynum/DWB-T1-P2/blob/master/output_images/polyfitoutput4.jpg" width="200">
+
 
 _Step 6: Determine the curvature of the lane and vehicle position with respect to center_
 
@@ -251,7 +250,7 @@ def poly_fit_me(leftx, lefty, rightx, righty, img_in):
     # Find our lane pixels first
     #leftx, lefty, rightx, righty, out_img = find_lane_pixels(top_down)
 
-    ### TO-DO: Fit a second order polynomial to each using `np.polyfit` ###
+    #Using np.polyfit to tit a second order polynomial to the selected pixels
     left_fit = np.polyfit(lefty, leftx, 2)
     right_fit = np.polyfit(righty, rightx, 2)
 
@@ -264,7 +263,8 @@ def poly_fit_me(leftx, lefty, rightx, righty, img_in):
 
 ```
 
-![Overlay with lane curvature in pixels and meters][image6]
+<!-- ![Overlay with lane curvature in pixels and meters][image6] -->
+<img src="https://github.com/dannybynum/DWB-T1-P2/blob/master/output_images/polyfitoutputwithtext4.jpg" width="200">
 
 
 _Step 7: Warp the detected lane boundaries back onto the original image_
@@ -285,7 +285,8 @@ Output_Image = orig_with_fill_text2
 
 
 
-![Warping the lane line fits back to original image space][image7-8]
+<!-- ![Warping the lane line fits back to original image space][image7-8] -->
+<img src="https://github.com/dannybynum/DWB-T1-P2/blob/master/output_images/original_image_with_annotation4.jpg" width="200">
 
 
 
