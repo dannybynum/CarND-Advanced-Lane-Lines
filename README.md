@@ -290,14 +290,14 @@ Output_Image = orig_with_fill_text2
 
 
 
-### 2. Identify potential shortcomings with your current pipeline
+### 2. Thoughts on Potential Shortcomings with Current Implementation
 
 The filters (Sobel,hsl-color) that are applied to extract the lane lines are fairly effective but looks like lots of additional work could be done here to get the optimal combination.
 
 Tracking not implemented which causes the lane-overlay to "bounce" around some.  This could be implmemented and would be a big improvement.
 
 
-### 3. Suggest possible improvements to your pipeline
+### 3. Recommended Next Steps (Possible improvements to pipeline)
 
 Currently using the sliding window approach for _each_ image so the processing time is pretty long, go-take-a-walk long.  The course points out a cool way to use convolution to check for pixels directly to right and left of the fitted line and this would likely improve processing time and also make it more accurate.
 
