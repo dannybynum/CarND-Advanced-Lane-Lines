@@ -24,11 +24,17 @@ cam_mtx =  np.array([[  1.15396093e+03,   0.00000000e+00,   6.69705359e+02],
 dist_coeffs = np.array([ -2.41017968e-01,  -5.30720497e-02,  -1.15810318e-03,  -1.28318543e-04,  2.67124302e-02])
 
 
-
-
 os.chdir('C:/Users/bynum/documents/udacity/term1/dwb-t1-p2/test_images')
 
 #basing image sizes and blank images off of test1.jpg throughout project
 img_in = cv2.imread('test1.jpg')
 
 img_size = (img_in.shape[1], img_in.shape[0])
+
+
+#Note with these source / original_image points, the transform looks good, but I may be giving up
+#some information because it cuts off at a closer distance (lower in image) - see plot with "FindPerspectiveTransformOffline.py"
+#original_image_points = np.float32([[734,482],[1025,665],[280,665],[548,482]])
+original_image_points = np.float32([[693,449],[1025,665],[280,665],[593,449]])
+
+desired_new_points = np.float32([[1025,0],[1025,719],[280,719],[280,0]])

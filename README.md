@@ -144,9 +144,30 @@ undistorted_image = cv2.undistort(test_image, cam_mtx, dist_coeffs, None, cam_mt
 
 _Step 3: Use color transforms, gradients, etc., to create a thresholded binary image_
 
+A lot of time can be spent tweaking things here to try to get the lane lines to stand out well from the rest of the image.  Some of the "tools" include looking at the gradients in the image.  These gradients can be taken in horizontal (x) and vertical (y) separately using the openCV *cv2.Sobel* function or they can be taken together as is done for the openCV *canny* edge detection function.
+
+For this project I used a combination of three things:
+x_gradient, Y-gradient taken on the "S-color-channel" of the image and also a simple threshold of a grayscale image (no gradient applied).  Here are a couple of code snipets from the main pipeline.  There are sub-functions that exist in the *ImageEdgeTransform.py* file.
 
 ```python
-INSERT SOME CODE HERE
+# Use hls_select to generate a binary image (1s,0s) corresponding to only the S-channel
+# of the original image and then on top of that only S-channel values that fall within the threshold set 
+#(i.e. pixels with certain intensity/brighntess) -- in this case anything above 100, or approx mid-range
+s_binary_thresh, hls_one_ch_img = ImageEdgeTransforms.hls_select(undistorted_image, ch_num=2 ,thresh=(90, 255))
+
+# Take gradient with respect to x (vertical lines) and y (horizontal lines) separately which allows you
+# to set different thresholds for each direction and then combine the results
+# Note that this is similar to using the built in canny function in openCV but this gives you more control
+gradx_binary = ImageEdgeTransforms.abs_sobel_thresh(hls_one_ch_img, orient='x', thresh_min=20, thresh_max=150, sobel_kernel=9)
+grady_binary = ImageEdgeTransforms.abs_sobel_thresh(hls_one_ch_img, orient='y', thresh_min=60, thresh_max=150, sobel_kernel=9)
+
+gray_binary_thresh, gray_img = ImageEdgeTransforms.hls_select(undistorted_image,ch_num=99 ,thresh=(200, 255)) 
+
+# setup/prepare some blank images that you can use to step through the individual binary images and combine results
+combo_4 = np.zeros_like(hls_one_ch_img)
+
+combo_4[((gradx_binary == 1) | (grady_binary ==1) | gray_binary_thresh ==1)] = 255
+
 ```
 
 
@@ -155,27 +176,92 @@ INSERT SOME CODE HERE
 
 _Step 4: Apply a perspective transform to rectify binary image ("birds-eye view")_
 
+The acutal transforms are performed with the *cv2.getPerspectiveTransform* and *cv2.warpPerspective* functions, but the main effort is in determining the parameters to be used for these functions.  This occurs "offline" within the file *FindPerspectiveTransformOffline.py* and then the values are copied into *Config.py* for usage in the main pipeline.  Below are some code snipets for experimenting with manually picking some points and plotting them to check.  The initial points can be picked by just plotting the image and moving your mouse until you are near the points that you want to use:
 
 ```python
-INSERT SOME CODE HERE
+#These numbers areis for straight_lines1 as well but goes a little further up image to get larger portion of
+#lane line the further up you go the fuzzier it gets though because lower resolution or pixels/lane-line
+src = np.float32([[693,449],[1025,665],[280,665],[593,449]])
+dst = np.float32([[1025,0],[1025,719],[280,719],[280,0]])
+
+#Do transform for plotting purposes - this is not used in main pipeline
+M = cv2.getPerspectiveTransform(src, dst)
+top_down = cv2.warpPerspective(img, M, img_size)
+
+
+#plt.imshow(img)
+
+fig, subplt = plt.subplots(1, 2, figsize=(18,7))
+fig.tight_layout()
+
+subplt[0].imshow(img)
+subplt[0].plot(src[0,0],src[0,1], '^')
+subplt[0].plot(src[1,0],src[1,1], '^')
+subplt[0].plot(src[2,0],src[2,1], '^')
+subplt[0].plot(src[3,0],src[3,1], '^')
+subplt[0].set_title('Original Image', fontsize=10)
+
+subplt[1].imshow(top_down)
+subplt[1].plot(dst[0,0],dst[0,1], '+')
+subplt[1].plot(dst[1,0],dst[1,1], '+')
+subplt[1].plot(dst[2,0],dst[2,1], '+')
+subplt[1].plot(dst[3,0],dst[3,1], '+')
+subplt[1].set_title('Top Down View', fontsize=10)
+plt.waitforbuttonpress(timeout=-1)
+plt.close('all')
 ```
 
 ![Perspective transform to show top-down view of image][image4]
 
 
-_Steps 5: Detect lane pixels and fit to find the lane boundary_
+_Step 5: Detect lane pixels and fit to find the lane boundary_
+
+Several steps involved here, but its the case of a picture is worth a thousand words -- a sliding window approach was used.  Here are some code snipets from the *CurveFitFinder.py* File:
 
 ```python
-INSERT SOME CODE HERE
+def slide_me(top_down, leftx_start, rightx_start):
+#.....
+# Step through the windows one by one
+    for window in range(nwindows):
+        # Identify window boundaries in x and y (and right and left)
+        win_y_low = top_down.shape[0] - (window+1)*window_height
+        win_y_high = top_down.shape[0] - window*window_height
+        ### DWB Done (was to-do): Find the four below boundaries of the window ###
+        win_xleft_low = leftx_current - margin
+        win_xleft_high = leftx_current + margin
+        win_xright_low = rightx_current - margin
+        win_xright_high = rightx_current + margin
+        
+        #Draw the windows on the visualization image
+        cv2.rectangle(out_img,(win_xleft_low,win_y_low),
+        (win_xleft_high,win_y_high),(0,255,0), 2) 
+        cv2.rectangle(out_img,(win_xright_low,win_y_low),
+        (win_xright_high,win_y_high),(0,255,0), 2) 
+    
 ```
 
 ![line fit using sliding windows][image5]
 
 _Step 6: Determine the curvature of the lane and vehicle position with respect to center_
 
-
+Some code snipets for the fit in pixel-space....similar fit was done using np.polyfit in meters.
 ```python
-INSERT SOME CODE HERE
+def poly_fit_me(leftx, lefty, rightx, righty, img_in):
+    
+    # Find our lane pixels first
+    #leftx, lefty, rightx, righty, out_img = find_lane_pixels(top_down)
+
+    ### TO-DO: Fit a second order polynomial to each using `np.polyfit` ###
+    left_fit = np.polyfit(lefty, leftx, 2)
+    right_fit = np.polyfit(righty, rightx, 2)
+
+
+    # Generate x and y values for plotting
+    ploty = np.linspace(0, img_in.shape[0]-1, img_in.shape[0] )
+
+    left_fitx = left_fit[0]*ploty**2 + left_fit[1]*ploty + left_fit[2]
+    right_fitx = right_fit[0]*ploty**2 + right_fit[1]*ploty + right_fit[2]
+
 ```
 
 ![Overlay with lane curvature in pixels and meters][image6]
@@ -184,9 +270,17 @@ INSERT SOME CODE HERE
 _Step 7: Warp the detected lane boundaries back onto the original image_
 _Step 8: Output visual display of the lane boundaries and numerical estimation of lane curvature and vehicle position_
 
-
+Some code snipets from the main pipeline for this step:
 ```python
-INSERT SOME CODE HERE
+# Step8: output a visual display of lanes and the curvature and centring text 
+	
+orig_img_with_lane_fill = cv2.addWeighted(undistorted_image, 1, unwarp_lane_visualization, 0.3, 0)
+
+orig_with_fill_text1 = cv2.putText(orig_img_with_lane_fill, image_text_line1, (230, 50), font, 0.8, (255, 255, 0), 2, cv2.LINE_AA)
+
+orig_with_fill_text2 = cv2.putText(orig_with_fill_text1, image_text_line2, (230, 75), font, 0.8, (255, 255, 0), 2, cv2.LINE_AA)
+
+Output_Image = orig_with_fill_text2
 ```
 
 

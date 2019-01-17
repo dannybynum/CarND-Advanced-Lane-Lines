@@ -109,18 +109,11 @@ def proj2_process_image (Current_Image):
 	#################################################################################################################
 	#Step4: Create top-down view
 
-	#Note with these source / original_image points, the transform looks good, but I may be giving up
-	#some information because it cuts off at a closer distance (lower in image) - see plot with "FindPerspectiveTransformOffline.py"
-	#original_image_points = np.float32([[734,482],[1025,665],[280,665],[548,482]])
-	original_image_points = np.float32([[693,449],[1025,665],[280,665],[593,449]])
-
-	desired_new_points = np.float32([[1025,0],[1025,719],[280,719],[280,0]])
-
 
     #Using built in function to calculate the perspective transform given source and destination points
-	top_down_transform = cv2.getPerspectiveTransform(original_image_points, desired_new_points)
+	top_down_transform = cv2.getPerspectiveTransform(Config.original_image_points, Config.desired_new_points)
 
-	inverse_transform = cv2.getPerspectiveTransform(desired_new_points, original_image_points)
+	inverse_transform = cv2.getPerspectiveTransform(Config.desired_new_points, Config.original_image_points)
 
 
     #Using built in function to perform transform given transform matrix calculated above
