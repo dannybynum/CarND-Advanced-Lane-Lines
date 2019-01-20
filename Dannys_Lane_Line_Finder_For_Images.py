@@ -49,7 +49,7 @@ import Config                      #Variables Used Across Modules
 # Step2:  Apply a distortion correction to raw images.
 os.chdir('C:/Users/bynum/documents/udacity/term1/dwb-t1-p2')
 
-paths_of_test_imgs = glob.glob('test_images/test*.jpg')
+paths_of_test_imgs = glob.glob('test_images/test*.png')
 image_count = 0
 
 
@@ -276,7 +276,14 @@ for sing_top_down_img_path in paths_of_top_down_imgs:
 	#Step 6b - calculate how centered the vehicle is in the lane.
 	
 	#Calculate centering based on how close the center of the lane lines is to the center of the image
-	lane_center_pixels = (img_in_gray.shape[1]/2) -(rightx_start - leftx_start)
+	left_lane_X_at_bottom_of_Image = left_fit_pix[0]*719**2 + left_fit_pix[1]*719 + left_fit_pix[2]
+	right_lane_X_at_bottom_of_Image = right_fit_pix[0]*719**2 + right_fit_pix[1]*719 + right_fit_pix[2]
+	lane_width_pixels = left_lane_X_at_bottom_of_Image + right_lane_X_at_bottom_of_Image
+
+	# Determine pixel offset between center of image and center point between left and right lane lines.
+	lane_center_pixels = Config.img_width/2 - lane_width_pixels/2
+
+	lane_center_meters = lane_center_pixels*Config.xm_per_pix
 
 	lane_center_meters = lane_center_pixels*Config.xm_per_pix
 

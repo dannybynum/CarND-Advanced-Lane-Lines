@@ -16,12 +16,13 @@ import ShowSideBySide
 os.chdir('C:/Users/bynum/documents/udacity/term1/dwb-t1-p2/test_images')
 
 #fname = 'test1.jpg'
-fname = 'test2.jpg'  #s_channel not enough
+#fname = 'test2.jpg'  #s_channel not enough
 #fname = 'test3.jpg'  #s_channel not enough
 #fname = 'test4.jpg'
 #fname = 'test5.jpg'  #Shadow Across Lane Line
 #fname = 'test6.jpg'  #Shadow Across Lane Line
 #fname = 'test7.jpg'   #s_channel not enough (this is actual a straight lines example I changed name to test7)
+fname = 'test8.png'   #s_channel not enough (this is actual a straight lines example I changed name to test7)
 
 
 

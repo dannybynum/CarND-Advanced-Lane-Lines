@@ -48,6 +48,7 @@ import Config                      #Variables Used Across Modules
 
 
 def proj2_process_image (Current_Image):
+	Config.Count_Frames_Processed +=1
 	###################################################################################################################
 	# Step1:  Camera Calibration performed offline using file CameraCalibration.py, 
 	# once performed these values are copied in Config.py file, which is called in this main pipeline
@@ -181,8 +182,20 @@ def proj2_process_image (Current_Image):
 	################################################################################################################################
 	#Step 6b - calculate how centered the vehicle is in the lane.
 	
-	#Calculate centering based on how close the center of the lane lines is to the center of the image
-	lane_center_pixels = (img_in_gray.shape[1]/2) -(rightx_start - leftx_start)
+	# In respose to project review feedback I am revising the method I'm using for determining vehicle centering
+	# The recommendation was to "evaluate" the 2nd-order equation for the lane @ the 719th line instead of using
+	# the histogram which uses more horizontal lines and therfore may "bias" the centering towards where the road is curving
+	# By evaluating it at the 719th line it better represents the current instant where the car is within the lane.
+	
+	left_lane_X_at_bottom_of_Image = l_fit_pix[0]*719**2 + l_fit_pix[1]*719 + l_fit_pix[2]
+	right_lane_X_at_bottom_of_Image = r_fit_pix[0]*719**2 + r_fit_pix[1]*719 + r_fit_pix[2]
+	
+	eval_y_point = 600
+	lane_width_at_eval_pixels = ((r_fit_pix[0]*eval_y_point**2 + r_fit_pix[1]*eval_y_point + r_fit_pix[2]) 
+								- (l_fit_pix[0]*eval_y_point**2 + l_fit_pix[1]*eval_y_point + l_fit_pix[2]))
+
+	# Determine pixel offset between center of image and center point between left and right lane lines.
+	lane_center_pixels = Config.img_width/2 - (left_lane_X_at_bottom_of_Image+right_lane_X_at_bottom_of_Image)/2
 
 	lane_center_meters = lane_center_pixels*Config.xm_per_pix
 
@@ -204,7 +217,28 @@ def proj2_process_image (Current_Image):
 	lane_visualize_canvas = np.zeros_like(img_with_fit_and_text2).astype(np.uint8)
 
 	# Draw the lane onto the warped blank image, note fill_pts comes from fit_me function in ImageEdgeTransforms
-	cv2.fillPoly(lane_visualize_canvas, np.int_([fill_pts]), (0,255, 0))
+	# Use previous poly-fit and associated fill_points if the fit for the current frame doesn't pass width sanity-check
+	
+	if Config.Count_Frames_Processed>0 and int(lane_width_at_eval_pixels)<500:
+		#FIXME - this is a bit of a hack but wanted to get this in quickly for now (use 2 frames back if second frame is off)
+		if int(Config.previous_lane_width_at_eval_pixels<500):
+			cv2.fillPoly(lane_visualize_canvas, np.int_([Config.previously_used_fill_pts2]), (0,255, 0))
+			print ("Fram From two frames back used due to two consequetive failed sanity checks @ frame#: ", Config.Count_Frames_Processed)
+			print("lane width at eval ", int(lane_width_at_eval_pixels))
+		else:
+			cv2.fillPoly(lane_visualize_canvas, np.int_([Config.previously_used_fill_pts1]), (0,255, 0))
+			print ("previous frame used due to failed sanity check on current frame @ frame#: ", Config.Count_Frames_Processed)
+			print("lane width at eval ", int(lane_width_at_eval_pixels))
+	else:
+		cv2.fillPoly(lane_visualize_canvas, np.int_([fill_pts]), (0,255, 0))
+
+	Config.previous_lane_width_at_eval_pixels = lane_width_at_eval_pixels
+
+	Config.previously_used_fill_pts2 = Config.previously_used_fill_pts1
+
+	Config.previously_used_fill_pts1 = fill_pts
+
+
 
 	# Warp the blank back to original image space using inverse perspective matrix (Minv)
 	unwarp_lane_visualization = cv2.warpPerspective(lane_visualize_canvas, inverse_transform, Config.img_size) 
@@ -239,7 +273,7 @@ def proj2_process_image (Current_Image):
 # Apply Video Pipeline to each image in video , and write new video
 
 os.chdir('C:/Users/bynum/documents/udacity/term1/dwb-t1-p2')
-output_video_filename = 'output_images/DannyProj2Video.mp4'
+output_video_filename = 'output_images/DannyProj2Video_rev1.mp4'
 # ## To speed up the testing process you may want to try your pipeline on a shorter subclip of the video
 # ## To do so add .subclip(start_second,end_second) to the end of the line below
 # ## Where start_second and end_second are integer values representing the start and end of the subclip

@@ -4,9 +4,9 @@ import numpy as np
 import CameraCalibration
 
 #Variables used throughout
+Count_Frames_Processed = 0
 ym_per_pix = 30/720 # meters per pixel in y dimension
 xm_per_pix = 3.7/700 # meters per pixel in x dimension
-
 
 
 # NOTE - you only have to run the CameraCalibration.calibrate_me() function one time then you can copy the values in as I did below
@@ -29,7 +29,10 @@ os.chdir('C:/Users/bynum/documents/udacity/term1/dwb-t1-p2/test_images')
 #basing image sizes and blank images off of test1.jpg throughout project
 img_in = cv2.imread('test1.jpg')
 
-img_size = (img_in.shape[1], img_in.shape[0])
+img_width = img_in.shape[1]
+img_height = img_in.shape[0]
+
+img_size = (img_width, img_height)
 
 
 #Note with these source / original_image points, the transform looks good, but I may be giving up
@@ -38,3 +41,17 @@ img_size = (img_in.shape[1], img_in.shape[0])
 original_image_points = np.float32([[693,449],[1025,665],[280,665],[593,449]])
 
 desired_new_points = np.float32([[1025,0],[1025,719],[280,719],[280,0]])
+
+
+
+#Create default "previously_used_fill_points" variable
+#########################################
+ploty = np.linspace(0, img_in.shape[0]-1, img_in.shape[0] )
+left_fitx = 1*ploty**2 + 1*ploty
+right_fitx = 1*ploty**2 + 1*ploty
+fill_pts_left = np.array([np.transpose(np.vstack([left_fitx, ploty]))])
+fill_pts_right = np.array([np.flipud(np.transpose(np.vstack([right_fitx, ploty])))])
+previously_used_fill_pts1 = np.hstack((fill_pts_left, fill_pts_right))
+previously_used_fill_pts2 = np.hstack((fill_pts_left, fill_pts_right))
+
+lane_width_at_eval_pixels = 0

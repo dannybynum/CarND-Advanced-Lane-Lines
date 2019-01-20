@@ -108,10 +108,12 @@ def poly_fit_me(leftx, lefty, rightx, righty, img_in):
     #leftx, lefty, rightx, righty, out_img = find_lane_pixels(top_down)
 
     #Using np.polyfit to tit a second order polynomial to the selected pixels
+    #The result/return of the function are the coefficients of the 2nd order equation (since we put in '2')
     left_fit = np.polyfit(lefty, leftx, 2)
     right_fit = np.polyfit(righty, rightx, 2)
     
     #This fits a polynomial in real units (meters) for calculating curvature -this on is not plotted visually
+    #The result/return of the function are the coefficients of the 2nd order equation (since we put in '2')
     left_fit_real = np.polyfit(lefty*Config.ym_per_pix, leftx*Config.xm_per_pix, 2)
     right_fit_real = np.polyfit(righty*Config.ym_per_pix, rightx*Config.xm_per_pix, 2)
     
